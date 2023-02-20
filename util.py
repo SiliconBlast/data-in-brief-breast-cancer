@@ -38,3 +38,28 @@ def check_missing_data(data):
     # Print missing values
     print("Missing Data:")
     print(missing)
+
+def create_baseline_characteristics_table(data):
+    """
+    This function takes a Pandas DataFrame and creates a baseline characteristics table for the dataset.
+    """
+
+    # Separate numeric and categorical variables
+    numeric_vars = data.select_dtypes(include=['int64', 'float64']).columns.tolist()
+    categorical_vars = data.select_dtypes(include=['object', 'category']).columns.tolist()
+
+    # Create baseline characteristics table for numeric variables
+    numeric_table = data[numeric_vars].describe().loc[['mean', 'std']].T
+
+    # Create baseline characteristics table for categorical variables\
+    categorical_table_big = {}
+    for var in categorical_vars:
+        categorical_table = pd.DataFrame(columns=['Count', 'Percentage'])
+        counts = data[var].value_counts()
+        cat_table = pd.DataFrame({'Count': counts, 'Percentage': counts / counts.sum() * 100})
+        cat_table.index.name = var
+        categorical_table = pd.concat([categorical_table, cat_table])
+        categorical_table_big[var] = categorical_table
+
+    # Return the baseline characteristics table
+    return numeric_table, categorical_table_big
